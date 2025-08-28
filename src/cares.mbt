@@ -1,0 +1,229 @@
+///|
+pub const AI_CANONNAME : Int = 1 << 0
+
+///|
+pub const AI_NUMERICHOST : Int = 1 << 1
+
+///|
+pub const AI_PASSIVE : Int = 1 << 2
+
+///|
+pub const AI_NUMERICSERV : Int = 1 << 3
+
+///|
+pub const AI_V4MAPPED : Int = 1 << 4
+
+///|
+pub const AI_ALL : Int = 1 << 5
+
+///|
+pub const AI_ADDRCONFIG : Int = 1 << 6
+
+///|
+pub const AI_NOSORT : Int = 1 << 7
+
+///|
+pub const AI_ENVHOSTS : Int = 1 << 8
+
+///|
+struct AddrInfoHints(FixedArray[Int])
+
+///|
+pub fn AddrInfoHints::new(
+  flags~ : Int,
+  family~ : Int,
+  socktype~ : Int,
+  protocol~ : Int,
+) -> AddrInfoHints {
+  AddrInfoHints([flags, family, socktype, protocol])
+}
+
+///|
+struct Options(Bytes)
+
+///|
+pub(all) enum Evsys {
+  Default = 0
+  Win32 = 1
+  Epoll = 2
+  Kqueue = 3
+  Poll = 4
+  Select = 5
+}
+
+///|
+pub extern "c" fn Options::new(evsys~ : Evsys) -> Options = "moonbit_ares_options_new"
+
+///|
+#external
+type Channel
+
+///|
+pub extern "c" fn Channel::null() -> Channel = "moonbit_c_null"
+
+///|
+pub extern "c" fn Channel::is_null(self : Channel) -> Bool = "moonbit_c_is_null"
+
+///|
+#external
+type AddrInfo
+
+///|
+pub extern "c" fn AddrInfo::null() -> AddrInfo = "moonbit_c_null"
+
+///|
+pub extern "c" fn AddrInfo::is_null(self : AddrInfo) -> Bool = "moonbit_c_is_null"
+
+///|
+pub extern "c" fn AddrInfo::free(self : AddrInfo) = "ares_freeaddrinfo"
+
+///|
+#external
+type AddrInfoCNAME
+
+///|
+pub extern "c" fn AddrInfoCNAME::null() -> AddrInfoCNAME = "moonbit_c_null"
+
+///|
+pub extern "c" fn AddrInfoCNAME::is_null(self : AddrInfoCNAME) -> Bool = "moonbit_c_is_null"
+
+///|
+pub extern "c" fn AddrInfoCNAME::ttl(self : AddrInfoCNAME) -> Int = "moonbit_ares_addrinfo_cname_ttl"
+
+///|
+pub extern "c" fn AddrInfoCNAME::alias_(
+  self : AddrInfoCNAME,
+) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_cname_alias"
+
+///|
+pub extern "c" fn AddrInfoCNAME::name(self : AddrInfoCNAME) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_cname_name"
+
+///|
+pub extern "c" fn AddrInfoCNAME::next(self : AddrInfoCNAME) -> AddrInfoCNAME = "moonbit_ares_addrinfo_cname_next"
+
+///|
+#external
+type AddrInfoNode
+
+///|
+pub extern "c" fn AddrInfoNode::null() -> AddrInfoNode = "moonbit_c_null"
+
+///|
+pub extern "c" fn AddrInfoNode::is_null(self : AddrInfoNode) -> Bool = "moonbit_c_is_null"
+
+///|
+pub extern "c" fn AddrInfoNode::ttl(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_ttl"
+
+///|
+pub extern "c" fn AddrInfoNode::family(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_family"
+
+///|
+pub extern "c" fn AddrInfoNode::socktype(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_socktype"
+
+///|
+pub extern "c" fn AddrInfoNode::protocol(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_protocol"
+
+///|
+pub extern "c" fn AddrInfoNode::addrlen(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_addrlen"
+
+///|
+pub extern "c" fn AddrInfoNode::addr(self : AddrInfoNode) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_node_addr"
+
+///|
+pub extern "c" fn AddrInfoNode::next(self : AddrInfoNode) -> AddrInfoNode = "moonbit_ares_addrinfo_node_next"
+
+///|
+#borrow(channel, node, service, hints, callback)
+pub extern "c" fn Channel::getaddrinfo(
+  channel : Channel,
+  node : Bytes,
+  service : Bytes,
+  hints : AddrInfoHints,
+  callback : (Int, Int, AddrInfo) -> Unit,
+) = "moonbit_ares_getaddrinfo"
+
+///|
+#borrow(channel, options)
+extern "c" fn ares_init_options(
+  channel : Ref[Channel],
+  options : Options,
+  optmask : Int,
+) -> Int = "moonbit_ares_init_options"
+
+///|
+pub suberror E {
+  NODATA
+  FORMERR
+  SERVFAIL
+  NOTFOUND
+  NOTIMP
+  REFUSED
+  BADQUERY
+  BADNAME
+  BADFAMILY
+  BADRESP
+  CONNREFUSED
+  TIMEOUT
+  EOF
+  FILE
+  NOMEM
+  DESTRUCTION
+  BADSTR
+  BADFLAGS
+  NONAME
+  BADHINTS
+  NOTINITIALIZED
+  LOADIPHLPAPI
+  ADDRGETNETWORKPARAMS
+  CANCELLED
+  SERVICE
+  NOSERVER
+  Unknown(Int)
+}
+
+///|
+fn E::of_int(status : Int) -> E {
+  match status {
+    1 => E::NODATA
+    2 => E::FORMERR
+    3 => E::SERVFAIL
+    4 => E::NOTFOUND
+    5 => E::NOTIMP
+    6 => E::REFUSED
+    7 => E::BADQUERY
+    8 => E::BADNAME
+    9 => E::BADFAMILY
+    10 => E::BADRESP
+    11 => E::CONNREFUSED
+    12 => E::TIMEOUT
+    13 => E::EOF
+    14 => E::FILE
+    15 => E::NOMEM
+    16 => E::DESTRUCTION
+    17 => E::BADSTR
+    18 => E::BADFLAGS
+    19 => E::NONAME
+    20 => E::BADHINTS
+    21 => E::NOTINITIALIZED
+    22 => E::LOADIPHLPAPI
+    23 => E::ADDRGETNETWORKPARAMS
+    24 => E::CANCELLED
+    25 => E::SERVICE
+    26 => E::NOSERVER
+    status => E::Unknown(status)
+  }
+}
+
+///|
+pub fn Channel::new(options : Options, optmask : Int) -> Channel raise E {
+  let channel = Ref::new(Channel::null())
+  let status = ares_init_options(channel, options, optmask)
+  if status == 0 {
+    channel.val
+  } else {
+    raise E::of_int(status)
+  }
+}
+
+///|
+pub extern "c" fn Channel::destroy(self : Channel) = "ares_channel_destroy"

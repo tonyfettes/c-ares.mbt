@@ -1,0 +1,108 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "username/hello"
+
+import(
+  "tonyfettes/c"
+)
+
+// Values
+const AI_ADDRCONFIG : Int = 64
+
+const AI_ALL : Int = 32
+
+const AI_CANONNAME : Int = 1
+
+const AI_ENVHOSTS : Int = 256
+
+const AI_NOSORT : Int = 128
+
+const AI_NUMERICHOST : Int = 2
+
+const AI_NUMERICSERV : Int = 8
+
+const AI_PASSIVE : Int = 4
+
+const AI_V4MAPPED : Int = 16
+
+// Errors
+pub suberror E {
+  NODATA
+  FORMERR
+  SERVFAIL
+  NOTFOUND
+  NOTIMP
+  REFUSED
+  BADQUERY
+  BADNAME
+  BADFAMILY
+  BADRESP
+  CONNREFUSED
+  TIMEOUT
+  EOF
+  FILE
+  NOMEM
+  DESTRUCTION
+  BADSTR
+  BADFLAGS
+  NONAME
+  BADHINTS
+  NOTINITIALIZED
+  LOADIPHLPAPI
+  ADDRGETNETWORKPARAMS
+  CANCELLED
+  SERVICE
+  NOSERVER
+  Unknown(Int)
+}
+
+// Types and methods
+type AddrInfo
+fn AddrInfo::free(Self) -> Unit
+fn AddrInfo::is_null(Self) -> Bool
+fn AddrInfo::null() -> Self
+
+type AddrInfoCNAME
+fn AddrInfoCNAME::alias_(Self) -> @c.Pointer[Byte]
+fn AddrInfoCNAME::is_null(Self) -> Bool
+fn AddrInfoCNAME::name(Self) -> @c.Pointer[Byte]
+fn AddrInfoCNAME::next(Self) -> Self
+fn AddrInfoCNAME::null() -> Self
+fn AddrInfoCNAME::ttl(Self) -> Int
+
+type AddrInfoHints
+fn AddrInfoHints::new(flags~ : Int, family~ : Int, socktype~ : Int, protocol~ : Int) -> Self
+
+type AddrInfoNode
+fn AddrInfoNode::addr(Self) -> @c.Pointer[Byte]
+fn AddrInfoNode::addrlen(Self) -> Int
+fn AddrInfoNode::family(Self) -> Int
+fn AddrInfoNode::is_null(Self) -> Bool
+fn AddrInfoNode::next(Self) -> Self
+fn AddrInfoNode::null() -> Self
+fn AddrInfoNode::protocol(Self) -> Int
+fn AddrInfoNode::socktype(Self) -> Int
+fn AddrInfoNode::ttl(Self) -> Int
+
+type Channel
+fn Channel::destroy(Self) -> Unit
+fn Channel::getaddrinfo(Self, Bytes, Bytes, AddrInfoHints, (Int, Int, AddrInfo) -> Unit) -> Unit
+fn Channel::is_null(Self) -> Bool
+fn Channel::new(Options, Int) -> Self raise E
+fn Channel::null() -> Self
+
+pub(all) enum Evsys {
+  Default
+  Win32
+  Epoll
+  Kqueue
+  Poll
+  Select
+}
+
+type Options
+fn Options::new(evsys~ : Evsys) -> Self
+
+// Type aliases
+
+// Traits
+
