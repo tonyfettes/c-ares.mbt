@@ -22,9 +22,46 @@ fn main {
   channel.getaddrinfo(node, service, hints, (_, _, result) => {
     if !result.is_null() {
       for node = result.nodes(); !node.is_null(); node = node.next() {
-
+        match node.family() {
+          INET => {
+            let buf : FixedArray[Byte] = FixedArray::make(
+              @cares.INET_ADDRSTRLEN,
+              0,
+            )
+            node
+            .addr()
+            .to_sockaddr_in()
+            .addr()
+            .ntop(buf, @cares.INET_ADDRSTRLEN)
+            let addr = @encoding.decode_lossy(
+              buf.unsafe_reinterpret_as_bytes(),
+              encoding=UTF8,
+            )
+            println("Addr: \{addr}")
+          }
+          INET6 => {
+            let buf : FixedArray[Byte] = FixedArray::make(
+              @cares.INET6_ADDRSTRLEN,
+              0,
+            )
+            node
+            .addr()
+            .to_sockaddr_in6()
+            .addr()
+            .ntop(buf, @cares.INET6_ADDRSTRLEN)
+            let addr = @encoding.decode_lossy(
+              buf.unsafe_reinterpret_as_bytes(),
+              encoding=UTF8,
+            )
+            println("Addr: \{addr}")
+          }
+          _ => continue
+        }
       }
     }
     result.free()
   })
+  @cares.queue_wait_empty(channel, -1) catch {
+    error => println("@cares.queue_wait_empty: \{(error : Error)}")
+  }
 }

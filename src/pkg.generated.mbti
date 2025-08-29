@@ -24,6 +24,10 @@ const AI_PASSIVE : Int = 4
 
 const AI_V4MAPPED : Int = 16
 
+const INET6_ADDRSTRLEN : Int = 46
+
+const INET_ADDRSTRLEN : Int = 16
+
 const LIB_INIT_ALL : Int = 1
 
 const LIB_INIT_NONE : Int = 0
@@ -82,6 +86,8 @@ fn library_cleanup() -> Unit
 
 fn library_init(Int) -> Unit raise E
 
+fn queue_wait_empty(Channel, Int) -> Unit raise E
+
 fn threadsafety() -> Bool
 
 // Errors
@@ -116,6 +122,12 @@ pub suberror E {
 }
 
 // Types and methods
+pub(all) enum AF {
+  UNSPEC
+  INET
+  INET6
+}
+
 type AddrInfo
 fn AddrInfo::cnames(Self) -> AddrInfoCname
 fn AddrInfo::free(Self) -> Unit
@@ -132,12 +144,12 @@ fn AddrInfoCname::null() -> Self
 fn AddrInfoCname::ttl(Self) -> Int
 
 type AddrInfoHints
-fn AddrInfoHints::new(flags? : Int, family? : Int, socktype? : Int, protocol? : Int) -> Self
+fn AddrInfoHints::new(flags? : Int, family? : AF, socktype? : Int, protocol? : Int) -> Self
 
 type AddrInfoNode
-fn AddrInfoNode::addr(Self) -> @c.Pointer[Byte]
+fn AddrInfoNode::addr(Self) -> Sockaddr
 fn AddrInfoNode::addrlen(Self) -> Int
-fn AddrInfoNode::family(Self) -> Int
+fn AddrInfoNode::family(Self) -> AF
 fn AddrInfoNode::is_null(Self) -> Bool
 fn AddrInfoNode::next(Self) -> Self
 fn AddrInfoNode::null() -> Self
@@ -161,8 +173,33 @@ pub(all) enum Evsys {
   Select
 }
 
+#external
+pub type In6Addr
+fn In6Addr::ntop(Self, FixedArray[Byte], Int) -> Unit
+
+#external
+pub type InAddr
+fn InAddr::ntop(Self, FixedArray[Byte], Int) -> Unit
+
 type Options
 fn Options::new(evsys~ : Evsys) -> Self
+
+#external
+pub type Sockaddr
+fn Sockaddr::to_sockaddr_in(Self) -> SockaddrIn
+fn Sockaddr::to_sockaddr_in6(Self) -> SockaddrIn6
+
+#external
+pub type SockaddrIn
+fn SockaddrIn::addr(Self) -> InAddr
+fn SockaddrIn::port(Self) -> UInt16
+fn SockaddrIn::to_sockaddr(Self) -> Sockaddr
+
+#external
+pub type SockaddrIn6
+fn SockaddrIn6::addr(Self) -> In6Addr
+fn SockaddrIn6::port(Self) -> UInt16
+fn SockaddrIn6::to_sockaddr(Self) -> Sockaddr
 
 // Type aliases
 

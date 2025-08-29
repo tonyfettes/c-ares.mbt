@@ -1,3 +1,9 @@
 {
-  "import": ["tonyfettes/c"]
+  "import": ["tonyfettes/c"],
+  "native-stub": ["cares.c"],
+  "link": {
+    "native": {
+      "stub-cc-link-flags": "-lcares"
+    }
+  }
 }

@@ -3,5 +3,10 @@
   "import": [
     "tonyfettes/cares",
     "tonyfettes/encoding"
-  ]
+  ],
+  "link": {
+    "native": {
+      "cc-link-flags": "-lcares"
+    }
+  }
 }

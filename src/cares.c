@@ -1,6 +1,8 @@
 #include <ares.h>
 #include <moonbit.h>
+#include <netinet/in.h>
 #include <stdint.h>
+#include <sys/socket.h>
 
 MOONBIT_FFI_EXPORT
 int32_t
@@ -143,4 +145,59 @@ MOONBIT_FFI_EXPORT
 struct ares_addrinfo_cname *
 moonbit_ares_addrinfo_cnames(struct ares_addrinfo *ai) {
   return ai->cnames;
+}
+
+typedef enum moonbit_ares_af {
+  MOONBIT_ARES_AF_UNSPEC = 0,
+  MOONBIT_ARES_AF_INET = 1,
+  MOONBIT_ARES_AF_INET6 = 2,
+} moonbit_ares_af_t;
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_ares_AF_to_int(moonbit_ares_af_t af) {
+  switch (af) {
+  case MOONBIT_ARES_AF_UNSPEC:
+    return AF_UNSPEC;
+  case MOONBIT_ARES_AF_INET:
+    return AF_INET;
+  case MOONBIT_ARES_AF_INET6:
+    return AF_INET6;
+  }
+}
+
+MOONBIT_FFI_EXPORT
+int32_t
+moonbit_ares_AF_of_int(int32_t af) {
+  if (af == AF_INET) {
+    return MOONBIT_ARES_AF_INET;
+  } else if (af == AF_INET6) {
+    return MOONBIT_ARES_AF_INET6;
+  } else {
+    return MOONBIT_ARES_AF_UNSPEC;
+  }
+}
+
+MOONBIT_FFI_EXPORT
+struct in_addr *
+moonbit_ares_sockaddr_in_addr(struct sockaddr_in *addr) {
+  return &addr->sin_addr;
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_ares_sockaddr_in_port(struct sockaddr_in *addr) {
+  return addr->sin_port;
+}
+
+MOONBIT_FFI_EXPORT
+struct in6_addr *
+moonbit_ares_sockaddr_in6_addr(struct sockaddr_in6 *addr) {
+  return &addr->sin6_addr;
+}
+
+MOONBIT_FFI_EXPORT
+uint32_t
+moonbit_ares_sockaddr_in6_port(struct sockaddr_in6 *addr) {
+  return addr->sin6_port;
 }

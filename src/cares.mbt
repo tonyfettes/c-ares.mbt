@@ -129,11 +129,11 @@ struct AddrInfoHints(FixedArray[Int])
 ///|
 pub fn AddrInfoHints::new(
   flags? : Int = 0,
-  family? : Int = 0,
+  family? : AF = UNSPEC,
   socktype? : Int = 0,
   protocol? : Int = 0,
 ) -> AddrInfoHints {
-  AddrInfoHints([flags, family, socktype, protocol])
+  AddrInfoHints([flags, family.to_int(), socktype, protocol])
 }
 
 ///|
@@ -170,16 +170,16 @@ type AddrInfo
 pub extern "c" fn AddrInfo::null() -> AddrInfo = "moonbit_c_null"
 
 ///|
-pub extern "c" fn AddrInfo::is_null(self : AddrInfo) -> Bool = "moonbit_c_is_null"
+pub extern "c" fn AddrInfo::is_null(info : AddrInfo) -> Bool = "moonbit_c_is_null"
 
 ///|
-pub extern "c" fn AddrInfo::free(self : AddrInfo) = "ares_freeaddrinfo"
+pub extern "c" fn AddrInfo::free(info : AddrInfo) = "ares_freeaddrinfo"
 
 ///|
-pub extern "c" fn AddrInfo::nodes(self : AddrInfo) -> AddrInfoNode = "moonbit_ares_addrinfo_nodes"
+pub extern "c" fn AddrInfo::nodes(info : AddrInfo) -> AddrInfoNode = "moonbit_ares_addrinfo_nodes"
 
 ///|
-pub extern "c" fn AddrInfo::cnames(self : AddrInfo) -> AddrInfoCname = "moonbit_ares_addrinfo_cnames"
+pub extern "c" fn AddrInfo::cnames(info : AddrInfo) -> AddrInfoCname = "moonbit_ares_addrinfo_cnames"
 
 ///|
 #external
@@ -189,21 +189,23 @@ type AddrInfoCname
 pub extern "c" fn AddrInfoCname::null() -> AddrInfoCname = "moonbit_c_null"
 
 ///|
-pub extern "c" fn AddrInfoCname::is_null(self : AddrInfoCname) -> Bool = "moonbit_c_is_null"
+pub extern "c" fn AddrInfoCname::is_null(cname : AddrInfoCname) -> Bool = "moonbit_c_is_null"
 
 ///|
-pub extern "c" fn AddrInfoCname::ttl(self : AddrInfoCname) -> Int = "moonbit_ares_addrinfo_cname_ttl"
+pub extern "c" fn AddrInfoCname::ttl(cname : AddrInfoCname) -> Int = "moonbit_ares_addrinfo_cname_ttl"
 
 ///|
 pub extern "c" fn AddrInfoCname::alias_(
-  self : AddrInfoCname,
+  cname : AddrInfoCname,
 ) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_cname_alias"
 
 ///|
-pub extern "c" fn AddrInfoCname::name(self : AddrInfoCname) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_cname_name"
+pub extern "c" fn AddrInfoCname::name(
+  cname : AddrInfoCname,
+) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_cname_name"
 
 ///|
-pub extern "c" fn AddrInfoCname::next(self : AddrInfoCname) -> AddrInfoCname = "moonbit_ares_addrinfo_cname_next"
+pub extern "c" fn AddrInfoCname::next(cname : AddrInfoCname) -> AddrInfoCname = "moonbit_ares_addrinfo_cname_next"
 
 ///|
 #external
@@ -213,28 +215,33 @@ type AddrInfoNode
 pub extern "c" fn AddrInfoNode::null() -> AddrInfoNode = "moonbit_c_null"
 
 ///|
-pub extern "c" fn AddrInfoNode::is_null(self : AddrInfoNode) -> Bool = "moonbit_c_is_null"
+pub extern "c" fn AddrInfoNode::is_null(node : AddrInfoNode) -> Bool = "moonbit_c_is_null"
 
 ///|
-pub extern "c" fn AddrInfoNode::ttl(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_ttl"
+pub extern "c" fn AddrInfoNode::ttl(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_ttl"
 
 ///|
-pub extern "c" fn AddrInfoNode::family(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_family"
+extern "c" fn ares_addrinfo_node_family(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_family"
 
 ///|
-pub extern "c" fn AddrInfoNode::socktype(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_socktype"
+pub fn AddrInfoNode::family(node : AddrInfoNode) -> AF {
+  AF::of_int(ares_addrinfo_node_family(node))
+}
 
 ///|
-pub extern "c" fn AddrInfoNode::protocol(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_protocol"
+pub extern "c" fn AddrInfoNode::socktype(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_socktype"
 
 ///|
-pub extern "c" fn AddrInfoNode::addrlen(self : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_addrlen"
+pub extern "c" fn AddrInfoNode::protocol(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_protocol"
 
 ///|
-pub extern "c" fn AddrInfoNode::addr(self : AddrInfoNode) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_node_addr"
+pub extern "c" fn AddrInfoNode::addrlen(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_addrlen"
 
 ///|
-pub extern "c" fn AddrInfoNode::next(self : AddrInfoNode) -> AddrInfoNode = "moonbit_ares_addrinfo_node_next"
+pub extern "c" fn AddrInfoNode::addr(node : AddrInfoNode) -> Sockaddr = "moonbit_ares_addrinfo_node_addr"
+
+///|
+pub extern "c" fn AddrInfoNode::next(node : AddrInfoNode) -> AddrInfoNode = "moonbit_ares_addrinfo_node_next"
 
 ///|
 #borrow(channel, node, service, hints, callback)
@@ -331,3 +338,105 @@ pub fn Channel::new(options : Options, optmask : Int) -> Channel raise E {
 
 ///|
 pub extern "c" fn Channel::destroy(self : Channel) = "ares_channel_destroy"
+
+///|
+pub(all) enum AF {
+  UNSPEC = 0
+  INET = 1
+  INET6 = 2
+}
+
+///|
+extern "c" fn AF::to_int(self : AF) -> Int = "moonbit_ares_AF_to_int"
+
+///|
+extern "c" fn AF::of_int(value : Int) -> AF = "moonbit_ares_AF_of_int"
+
+///|
+extern "c" fn ares_queue_wait_empty(channel : Channel, timeout_ms : Int) -> Int = "ares_queue_wait_empty"
+
+///|
+pub fn queue_wait_empty(channel : Channel, timeout_ms : Int) -> Unit raise E {
+  let status = ares_queue_wait_empty(channel, timeout_ms)
+  if status != 0 {
+    raise E::of_int(status)
+  }
+}
+
+///|
+#external
+pub type Sockaddr
+
+///|
+pub fn Sockaddr::to_sockaddr_in(self : Sockaddr) -> SockaddrIn = "%identity"
+
+///|
+pub fn Sockaddr::to_sockaddr_in6(self : Sockaddr) -> SockaddrIn6 = "%identity"
+
+///|
+#external
+pub type SockaddrIn
+
+///|
+pub fn SockaddrIn::to_sockaddr(self : SockaddrIn) -> Sockaddr = "%identity"
+
+///|
+#external
+pub type SockaddrIn6
+
+///|
+pub fn SockaddrIn6::to_sockaddr(self : SockaddrIn6) -> Sockaddr = "%identity"
+
+///|
+#external
+pub type InAddr
+
+///|
+pub extern "c" fn SockaddrIn::addr(self : SockaddrIn) -> InAddr = "moonbit_ares_sockaddr_in_addr"
+
+///|
+pub extern "c" fn SockaddrIn::port(self : SockaddrIn) -> UInt16 = "moonbit_ares_sockaddr_in_port"
+
+///|
+#external
+pub type In6Addr
+
+///|
+pub extern "c" fn SockaddrIn6::addr(self : SockaddrIn6) -> In6Addr = "moonbit_ares_sockaddr_in6_addr"
+
+///|
+pub extern "c" fn SockaddrIn6::port(self : SockaddrIn6) -> UInt16 = "moonbit_ares_sockaddr_in6_port"
+
+///|
+#borrow(buf)
+extern "c" fn ares_in_addr_ntop(
+  af : Int,
+  src : InAddr,
+  buf : FixedArray[Byte],
+  len : Int,
+) = "ares_inet_ntop"
+
+///|
+pub const INET_ADDRSTRLEN = 16
+
+///|
+pub const INET6_ADDRSTRLEN = 46
+
+///|
+pub fn InAddr::ntop(src : InAddr, buf : FixedArray[Byte], len : Int) -> Unit {
+  ares_in_addr_ntop(AF::INET.to_int(), src, buf, len)
+}
+
+///|
+#borrow(buf)
+extern "c" fn ares_in6_addr_ntop(
+  af : AF,
+  src : In6Addr,
+  buf : FixedArray[Byte],
+  len : Int,
+) = "ares_inet_ntop"
+
+///|
+pub fn In6Addr::ntop(src : In6Addr, buf : FixedArray[Byte], len : Int) -> Unit {
+  ares_in6_addr_ntop(AF::INET6, src, buf, len)
+}
