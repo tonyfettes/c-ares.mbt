@@ -1,4 +1,30 @@
 ///|
+pub const LIB_INIT_NONE : Int = 0
+
+///|
+pub const LIB_INIT_WIN32 : Int = 1 << 0
+
+///|
+pub const LIB_INIT_ALL : Int = LIB_INIT_WIN32
+
+///|
+extern "c" fn ares_library_init(flags : Int) -> Int = "ares_library_init"
+
+///|
+pub fn library_init(flags : Int) -> Unit raise E {
+  let status = ares_library_init(flags)
+  if status != 0 {
+    raise E::of_int(status)
+  }
+}
+
+///|
+pub extern "c" fn library_cleanup() = "ares_library_cleanup"
+
+///|
+pub extern "c" fn threadsafety() -> Bool = "moonbit_ares_threadsafety"
+
+///|
 pub const AI_CANONNAME : Int = 1 << 0
 
 ///|
@@ -26,14 +52,86 @@ pub const AI_NOSORT : Int = 1 << 7
 pub const AI_ENVHOSTS : Int = 1 << 8
 
 ///|
+pub const OPT_FLAGS : Int = 1 << 0
+
+///|
+pub const OPT_TIMEOUT : Int = 1 << 1
+
+///|
+pub const OPT_TRIES : Int = 1 << 2
+
+///|
+pub const OPT_NDOTS : Int = 1 << 3
+
+///|
+pub const OPT_UDP_PORT : Int = 1 << 4
+
+///|
+pub const OPT_TCP_PORT : Int = 1 << 5
+
+///|
+pub const OPT_SERVERS : Int = 1 << 6
+
+///|
+pub const OPT_DOMAINS : Int = 1 << 7
+
+///|
+pub const OPT_LOOKUPS : Int = 1 << 8
+
+///|
+pub const OPT_SOCK_STATE_CB : Int = 1 << 9
+
+///|
+pub const OPT_SORTLIST : Int = 1 << 10
+
+///|
+pub const OPT_SOCK_SNDBUF : Int = 1 << 11
+
+///|
+pub const OPT_SOCK_RCVBUF : Int = 1 << 12
+
+///|
+pub const OPT_TIMEOUTMS : Int = 1 << 13
+
+///|
+pub const OPT_ROTATE : Int = 1 << 14
+
+///|
+pub const OPT_EDNSPSZ : Int = 1 << 15
+
+///|
+pub const OPT_NOROTATE : Int = 1 << 16
+
+///|
+pub const OPT_RESOLVCONF : Int = 1 << 17
+
+///|
+pub const OPT_HOSTS_FILE : Int = 1 << 18
+
+///|
+pub const OPT_UDP_MAX_QUERIES : Int = 1 << 19
+
+///|
+pub const OPT_MAXTIMEOUTMS : Int = 1 << 20
+
+///|
+pub const OPT_QUERY_CACHE : Int = 1 << 21
+
+///|
+pub const OPT_EVENT_THREAD : Int = 1 << 22
+
+///|
+pub const OPT_SERVER_FAILOVER : Int = 1 << 23
+
+///|
 struct AddrInfoHints(FixedArray[Int])
 
 ///|
 pub fn AddrInfoHints::new(
-  flags~ : Int,
-  family~ : Int,
-  socktype~ : Int,
-  protocol~ : Int,
+  flags? : Int = 0,
+  family? : Int = 0,
+  socktype? : Int = 0,
+  protocol? : Int = 0,
 ) -> AddrInfoHints {
   AddrInfoHints([flags, family, socktype, protocol])
 }
@@ -78,28 +176,34 @@ pub extern "c" fn AddrInfo::is_null(self : AddrInfo) -> Bool = "moonbit_c_is_nul
 pub extern "c" fn AddrInfo::free(self : AddrInfo) = "ares_freeaddrinfo"
 
 ///|
+pub extern "c" fn AddrInfo::nodes(self : AddrInfo) -> AddrInfoNode = "moonbit_ares_addrinfo_nodes"
+
+///|
+pub extern "c" fn AddrInfo::cnames(self : AddrInfo) -> AddrInfoCname = "moonbit_ares_addrinfo_cnames"
+
+///|
 #external
-type AddrInfoCNAME
+type AddrInfoCname
 
 ///|
-pub extern "c" fn AddrInfoCNAME::null() -> AddrInfoCNAME = "moonbit_c_null"
+pub extern "c" fn AddrInfoCname::null() -> AddrInfoCname = "moonbit_c_null"
 
 ///|
-pub extern "c" fn AddrInfoCNAME::is_null(self : AddrInfoCNAME) -> Bool = "moonbit_c_is_null"
+pub extern "c" fn AddrInfoCname::is_null(self : AddrInfoCname) -> Bool = "moonbit_c_is_null"
 
 ///|
-pub extern "c" fn AddrInfoCNAME::ttl(self : AddrInfoCNAME) -> Int = "moonbit_ares_addrinfo_cname_ttl"
+pub extern "c" fn AddrInfoCname::ttl(self : AddrInfoCname) -> Int = "moonbit_ares_addrinfo_cname_ttl"
 
 ///|
-pub extern "c" fn AddrInfoCNAME::alias_(
-  self : AddrInfoCNAME,
+pub extern "c" fn AddrInfoCname::alias_(
+  self : AddrInfoCname,
 ) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_cname_alias"
 
 ///|
-pub extern "c" fn AddrInfoCNAME::name(self : AddrInfoCNAME) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_cname_name"
+pub extern "c" fn AddrInfoCname::name(self : AddrInfoCname) -> @c.Pointer[Byte] = "moonbit_ares_addrinfo_cname_name"
 
 ///|
-pub extern "c" fn AddrInfoCNAME::next(self : AddrInfoCNAME) -> AddrInfoCNAME = "moonbit_ares_addrinfo_cname_next"
+pub extern "c" fn AddrInfoCname::next(self : AddrInfoCname) -> AddrInfoCname = "moonbit_ares_addrinfo_cname_next"
 
 ///|
 #external

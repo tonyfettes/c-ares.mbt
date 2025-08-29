@@ -1,8 +1,8 @@
 {
-  "name": "username/hello",
+  "name": "tonyfettes/cares",
   "version": "0.1.0",
   "deps": {
-    "tonyfettes/c": "0.5.1"
+    "tonyfettes/c": "0.5.2"
   },
   "readme": "README.md",
   "repository": "",

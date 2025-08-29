@@ -4,38 +4,8 @@
 
 MOONBIT_FFI_EXPORT
 int32_t
-moonbit_ares_library_init(int32_t flags) {
-  return ares_library_init(flags);
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_ARES_LIB_INIT_ALL() {
-  return ARES_LIB_INIT_ALL;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_ARES_LIB_INIT_NONE() {
-  return ARES_LIB_INIT_NONE;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
 moonbit_ares_threadsafety() {
   return ares_threadsafety();
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_ARES_OPT_EVENT_THREAD() {
-  return ARES_OPT_EVENT_THREAD;
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_ARES_EVSYS_DEFAULT() {
-  return ARES_EVSYS_DEFAULT;
 }
 
 MOONBIT_FFI_EXPORT
@@ -46,12 +16,6 @@ moonbit_ares_init_options(
   int32_t optmask
 ) {
   return ares_init_options(channelptr, options, optmask);
-}
-
-MOONBIT_FFI_EXPORT
-int32_t
-moonbit_ARES_AI_CANONNAME() {
-  return ARES_AI_CANONNAME;
 }
 
 MOONBIT_FFI_EXPORT
@@ -167,4 +131,16 @@ MOONBIT_FFI_EXPORT
 struct ares_addrinfo_node *
 moonbit_ares_addrinfo_node_next(struct ares_addrinfo_node *node) {
   return node->ai_next;
+}
+
+MOONBIT_FFI_EXPORT
+struct ares_addrinfo_node *
+moonbit_ares_addrinfo_nodes(struct ares_addrinfo *ai) {
+  return ai->nodes;
+}
+
+MOONBIT_FFI_EXPORT
+struct ares_addrinfo_cname *
+moonbit_ares_addrinfo_cnames(struct ares_addrinfo *ai) {
+  return ai->cnames;
 }
