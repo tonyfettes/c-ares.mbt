@@ -391,6 +391,11 @@ pub fn SockaddrIn6::to_sockaddr(self : SockaddrIn6) -> Sockaddr = "%identity"
 pub struct InAddr(UInt)
 
 ///|
+fn init {
+  ignore(InAddr(0) is InAddr::InAddr(0))
+}
+
+///|
 pub extern "c" fn SockaddrIn::addr(self : SockaddrIn) -> InAddr = "moonbit_ares_sockaddr_in_addr"
 
 ///|
@@ -399,6 +404,14 @@ pub extern "c" fn SockaddrIn::port(self : SockaddrIn) -> UInt16 = "moonbit_ares_
 ///|
 #valtype
 pub struct In6Addr(UInt,UInt,UInt,UInt)
+
+///|
+fn init {
+  ignore(In6Addr(0, 0, 0, 0).0)
+  ignore(In6Addr(0, 0, 0, 0).1)
+  ignore(In6Addr(0, 0, 0, 0).2)
+  ignore(In6Addr(0, 0, 0, 0).3)
+}
 
 ///|
 pub extern "c" fn SockaddrIn6::addr(self : SockaddrIn6) -> In6Addr = "moonbit_ares_sockaddr_in6_addr"

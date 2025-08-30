@@ -37,7 +37,9 @@ fn main {
               buf.unsafe_reinterpret_as_bytes(),
               encoding=UTF8,
             )
-            println("Addr: \{addr}")
+            let port = node.addr().to_sockaddr_in6().port()
+            let port = (port >> 8) | ((port & 0xFF) << 8)
+            println("\{addr}:\{port}")
           }
           INET6 => {
             let buf : FixedArray[Byte] = FixedArray::make(
@@ -53,7 +55,9 @@ fn main {
               buf.unsafe_reinterpret_as_bytes(),
               encoding=UTF8,
             )
-            println("Addr: \{addr}")
+            let port = node.addr().to_sockaddr_in6().port().to_int()
+            let port = (port >> 8) | ((port & 0xFF) << 8)
+            println("\{addr}:\{port}")
           }
           _ => continue
         }
