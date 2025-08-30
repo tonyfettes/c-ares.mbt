@@ -1,12 +1,4 @@
 {
   "is-main": true,
-  "import": [
-    "tonyfettes/cares",
-    "tonyfettes/encoding"
-  ],
-  "link": {
-    "native": {
-      "cc-link-flags": "-lcares"
-    }
-  }
+  "import": ["tonyfettes/cares", "tonyfettes/encoding"]
 }
