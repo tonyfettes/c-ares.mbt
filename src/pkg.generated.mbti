@@ -173,12 +173,12 @@ pub(all) enum Evsys {
   Select
 }
 
-#external
-pub type In6Addr
+pub struct In6Addr(UInt, UInt, UInt, UInt)
+
 fn In6Addr::ntop(Self, FixedArray[Byte], Int) -> Unit
 
-#external
-pub type InAddr
+pub struct InAddr(UInt)
+fn InAddr::inner(Self) -> UInt
 fn InAddr::ntop(Self, FixedArray[Byte], Int) -> Unit
 
 type Options

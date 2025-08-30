@@ -1,8 +1,6 @@
 #include <ares.h>
 #include <moonbit.h>
-#include <netinet/in.h>
 #include <stdint.h>
-#include <sys/socket.h>
 
 MOONBIT_FFI_EXPORT
 int32_t
@@ -179,9 +177,9 @@ moonbit_ares_AF_of_int(int32_t af) {
 }
 
 MOONBIT_FFI_EXPORT
-struct in_addr *
+struct in_addr
 moonbit_ares_sockaddr_in_addr(struct sockaddr_in *addr) {
-  return &addr->sin_addr;
+  return addr->sin_addr;
 }
 
 MOONBIT_FFI_EXPORT
@@ -191,13 +189,30 @@ moonbit_ares_sockaddr_in_port(struct sockaddr_in *addr) {
 }
 
 MOONBIT_FFI_EXPORT
-struct in6_addr *
+struct in6_addr
 moonbit_ares_sockaddr_in6_addr(struct sockaddr_in6 *addr) {
-  return &addr->sin6_addr;
+  return addr->sin6_addr;
 }
 
 MOONBIT_FFI_EXPORT
 uint32_t
 moonbit_ares_sockaddr_in6_port(struct sockaddr_in6 *addr) {
   return addr->sin6_port;
+}
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_ares_inet_ntop(int32_t af, struct in_addr src, char *buf, int32_t len) {
+  ares_inet_ntop(af, &src, buf, len);
+}
+
+MOONBIT_FFI_EXPORT
+void
+moonbit_ares_inet6_ntop(
+  int32_t af,
+  struct in6_addr src,
+  char *buf,
+  int32_t len
+) {
+  ares_inet_ntop(af, &src, buf, len);
 }

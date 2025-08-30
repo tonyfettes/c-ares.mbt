@@ -10,5 +10,6 @@
   "keywords": [],
   "description": "",
   "source": "src",
-  "preferred-target": "native"
+  "preferred-target": "native",
+  "--moonbit-unstable-prebuild": "build.py"
 }

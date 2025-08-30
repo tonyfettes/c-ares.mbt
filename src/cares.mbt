@@ -388,8 +388,7 @@ pub type SockaddrIn6
 pub fn SockaddrIn6::to_sockaddr(self : SockaddrIn6) -> Sockaddr = "%identity"
 
 ///|
-#external
-pub type InAddr
+pub struct InAddr(UInt)
 
 ///|
 pub extern "c" fn SockaddrIn::addr(self : SockaddrIn) -> InAddr = "moonbit_ares_sockaddr_in_addr"
@@ -398,8 +397,8 @@ pub extern "c" fn SockaddrIn::addr(self : SockaddrIn) -> InAddr = "moonbit_ares_
 pub extern "c" fn SockaddrIn::port(self : SockaddrIn) -> UInt16 = "moonbit_ares_sockaddr_in_port"
 
 ///|
-#external
-pub type In6Addr
+#valtype
+pub struct In6Addr(UInt,UInt,UInt,UInt)
 
 ///|
 pub extern "c" fn SockaddrIn6::addr(self : SockaddrIn6) -> In6Addr = "moonbit_ares_sockaddr_in6_addr"
@@ -414,7 +413,7 @@ extern "c" fn ares_in_addr_ntop(
   src : InAddr,
   buf : FixedArray[Byte],
   len : Int,
-) = "ares_inet_ntop"
+) = "moonbit_ares_inet_ntop"
 
 ///|
 pub const INET_ADDRSTRLEN = 16
@@ -428,15 +427,15 @@ pub fn InAddr::ntop(src : InAddr, buf : FixedArray[Byte], len : Int) -> Unit {
 }
 
 ///|
-#borrow(buf)
+#borrow(src, buf)
 extern "c" fn ares_in6_addr_ntop(
-  af : AF,
+  af : Int,
   src : In6Addr,
   buf : FixedArray[Byte],
   len : Int,
-) = "ares_inet_ntop"
+) = "moonbit_ares_inet6_ntop"
 
 ///|
 pub fn In6Addr::ntop(src : In6Addr, buf : FixedArray[Byte], len : Int) -> Unit {
-  ares_in6_addr_ntop(AF::INET6, src, buf, len)
+  ares_in6_addr_ntop(AF::INET6.to_int(), src, buf, len)
 }

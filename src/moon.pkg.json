@@ -3,7 +3,8 @@
   "native-stub": ["cares.c"],
   "link": {
     "native": {
-      "stub-cc-link-flags": "-lcares"
+      "stub-cc": "${build.CC}",
+      "stub-cc-flags": "${build.CC_FLAGS}"
     }
   }
 }
