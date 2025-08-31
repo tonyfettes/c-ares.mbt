@@ -11,10 +11,10 @@ pub const LIB_INIT_ALL : Int = LIB_INIT_WIN32
 extern "c" fn ares_library_init(flags : Int) -> Int = "ares_library_init"
 
 ///|
-pub fn library_init(flags : Int) -> Unit raise E {
+pub fn library_init(flags : Int) -> Unit raise Errno {
   let status = ares_library_init(flags)
   if status != 0 {
-    raise E::of_int(status)
+    raise Errno::of_int(status)
   }
 }
 
@@ -262,77 +262,80 @@ extern "c" fn ares_init_options(
 ) -> Int = "moonbit_ares_init_options"
 
 ///|
-pub suberror E {
-  NODATA
-  FORMERR
-  SERVFAIL
-  NOTFOUND
-  NOTIMP
-  REFUSED
-  BADQUERY
-  BADNAME
-  BADFAMILY
-  BADRESP
-  CONNREFUSED
-  TIMEOUT
+pub suberror Errno {
+  ENODATA
+  EFORMERR
+  ESERVFAIL
+  ENOTFOUND
+  ENOTIMP
+  EREFUSED
+  EBADQUERY
+  EBADNAME
+  EBADFAMILY
+  EBADRESP
+  ECONNREFUSED
+  ETIMEOUT
   EOF
-  FILE
-  NOMEM
-  DESTRUCTION
-  BADSTR
-  BADFLAGS
-  NONAME
-  BADHINTS
-  NOTINITIALIZED
-  LOADIPHLPAPI
-  ADDRGETNETWORKPARAMS
-  CANCELLED
-  SERVICE
-  NOSERVER
-  Unknown(Int)
+  EFILE
+  ENOMEM
+  EDESTRUCTION
+  EBADSTR
+  EBADFLAGS
+  ENONAME
+  EBADHINTS
+  ENOTINITIALIZED
+  ELOADIPHLPAPI
+  EADDRGETNETWORKPARAMS
+  ECANCELLED
+  ESERVICE
+  ENOSERVER
+  UNKNOWN(Int)
 }
 
 ///|
-fn E::of_int(status : Int) -> E {
+fn Errno::of_int(status : Int) -> Errno {
   match status {
-    1 => E::NODATA
-    2 => E::FORMERR
-    3 => E::SERVFAIL
-    4 => E::NOTFOUND
-    5 => E::NOTIMP
-    6 => E::REFUSED
-    7 => E::BADQUERY
-    8 => E::BADNAME
-    9 => E::BADFAMILY
-    10 => E::BADRESP
-    11 => E::CONNREFUSED
-    12 => E::TIMEOUT
-    13 => E::EOF
-    14 => E::FILE
-    15 => E::NOMEM
-    16 => E::DESTRUCTION
-    17 => E::BADSTR
-    18 => E::BADFLAGS
-    19 => E::NONAME
-    20 => E::BADHINTS
-    21 => E::NOTINITIALIZED
-    22 => E::LOADIPHLPAPI
-    23 => E::ADDRGETNETWORKPARAMS
-    24 => E::CANCELLED
-    25 => E::SERVICE
-    26 => E::NOSERVER
-    status => E::Unknown(status)
+    1 => Errno::ENODATA
+    2 => Errno::EFORMERR
+    3 => Errno::ESERVFAIL
+    4 => Errno::ENOTFOUND
+    5 => Errno::ENOTIMP
+    6 => Errno::EREFUSED
+    7 => Errno::EBADQUERY
+    8 => Errno::EBADNAME
+    9 => Errno::EBADFAMILY
+    10 => Errno::EBADRESP
+    11 => Errno::ECONNREFUSED
+    12 => Errno::ETIMEOUT
+    13 => Errno::EOF
+    14 => Errno::EFILE
+    15 => Errno::ENOMEM
+    16 => Errno::EDESTRUCTION
+    17 => Errno::EBADSTR
+    18 => Errno::EBADFLAGS
+    19 => Errno::ENONAME
+    20 => Errno::EBADHINTS
+    21 => Errno::ENOTINITIALIZED
+    22 => Errno::ELOADIPHLPAPI
+    23 => Errno::EADDRGETNETWORKPARAMS
+    24 => Errno::ECANCELLED
+    25 => Errno::ESERVICE
+    26 => Errno::ENOSERVER
+    status => Errno::UNKNOWN(status)
   }
 }
 
 ///|
-pub fn Channel::new(options : Options, optmask : Int) -> Channel raise E {
+pub fn Channel::new(
+  options : Options,
+  optmask : Int,
+) -> Channel raise Errno {
   let channel = Ref::new(Channel::null())
   let status = ares_init_options(channel, options, optmask)
   if status == 0 {
     channel.val
   } else {
-    raise E::of_int(status)
+    raise Errno::of_int(status)
   }
 }
 
@@ -356,10 +359,13 @@ extern "c" fn AF::of_int(value : Int) -> AF = "moonbit_ares_AF_of_int"
 extern "c" fn ares_queue_wait_empty(channel : Channel, timeout_ms : Int) -> Int = "ares_queue_wait_empty"
 
 ///|
-pub fn queue_wait_empty(channel : Channel, timeout_ms : Int) -> Unit raise E {
+pub fn queue_wait_empty(
+  channel : Channel,
+  timeout_ms : Int,
+) -> Unit raise Errno {
   let status = ares_queue_wait_empty(channel, timeout_ms)
   if status != 0 {
-    raise E::of_int(status)
+    raise Errno::of_int(status)
   }
 }
 
