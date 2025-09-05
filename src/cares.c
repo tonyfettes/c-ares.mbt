@@ -1,6 +1,7 @@
 #include <ares.h>
 #include <moonbit.h>
 #include <stdint.h>
+#include <string.h>
 
 MOONBIT_FFI_EXPORT
 int32_t
@@ -116,15 +117,11 @@ moonbit_ares_addrinfo_node_protocol(struct ares_addrinfo_node *node) {
 }
 
 MOONBIT_FFI_EXPORT
-size_t
-moonbit_ares_addrinfo_node_addrlen(struct ares_addrinfo_node *node) {
-  return node->ai_addrlen;
-}
-
-MOONBIT_FFI_EXPORT
-struct sockaddr *
+moonbit_bytes_t
 moonbit_ares_addrinfo_node_addr(struct ares_addrinfo_node *node) {
-  return node->ai_addr;
+  moonbit_bytes_t bytes = moonbit_make_bytes(node->ai_addrlen, 0);
+  memcpy(bytes, node->ai_addr, node->ai_addrlen);
+  return bytes;
 }
 
 MOONBIT_FFI_EXPORT

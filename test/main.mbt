@@ -22,44 +22,26 @@ fn main {
   channel.getaddrinfo(node, service, hints, (_, _, result) => {
     if !result.is_null() {
       for node = result.nodes(); !node.is_null(); node = node.next() {
-        match node.family() {
-          INET => {
-            let buf : FixedArray[Byte] = FixedArray::make(
-              @cares.INET_ADDRSTRLEN,
-              0,
-            )
-            node
-            .addr()
-            .to_sockaddr_in()
-            .addr()
-            .ntop(buf, @cares.INET_ADDRSTRLEN)
-            let addr = @encoding.decode_lossy(
-              buf.unsafe_reinterpret_as_bytes(),
-              encoding=UTF8,
-            )
-            let port = node.addr().to_sockaddr_in6().port()
-            let port = (port >> 8) | ((port & 0xFF) << 8)
-            println("\{addr}:\{port}")
-          }
-          INET6 => {
-            let buf : FixedArray[Byte] = FixedArray::make(
-              @cares.INET6_ADDRSTRLEN,
-              0,
-            )
-            node
-            .addr()
-            .to_sockaddr_in6()
-            .addr()
-            .ntop(buf, @cares.INET6_ADDRSTRLEN)
-            let addr = @encoding.decode_lossy(
-              buf.unsafe_reinterpret_as_bytes(),
-              encoding=UTF8,
-            )
-            let port = node.addr().to_sockaddr_in6().port().to_int()
-            let port = (port >> 8) | ((port & 0xFF) << 8)
-            println("\{addr}:\{port}")
-          }
-          _ => continue
+        if node.family() == @inet.address_family {
+          let sin : @inet.Sockaddr? = node.addr().to()
+          guard sin is Some(sin)
+          let socket = @socket.socket(
+            node.family(),
+            node.socktype(),
+            node.protocol(),
+          )
+          ignore(socket.connect(sin))
+        } else if node.family() == @inet6.address_family {
+          let sin6 : @inet6.Sockaddr? = node.addr().to()
+          guard sin6 is Some(sin6)
+          let socket = @socket.socket(
+            node.family(),
+            node.socktype(),
+            node.protocol(),
+          )
+          ignore(socket.connect(sin6))
+        } else {
+          println("Unknown address family: \{(node.family())}")
         }
       }
     }

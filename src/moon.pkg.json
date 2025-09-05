@@ -1,5 +1,9 @@
 {
-  "import": ["tonyfettes/c"],
+  "import": [
+    "tonyfettes/c",
+    "tonyfettes/socket",
+    "tonyfettes/socket/inet"
+  ],
   "native-stub": ["cares.c"],
   "link": {
     "native": {

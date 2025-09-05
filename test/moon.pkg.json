@@ -1,4 +1,10 @@
 {
   "is-main": true,
-  "import": ["tonyfettes/cares", "tonyfettes/encoding"]
+  "import": [
+    "tonyfettes/cares",
+    "tonyfettes/encoding",
+    "tonyfettes/socket/inet",
+    "tonyfettes/socket",
+    "tonyfettes/socket/inet6"
+  ]
 }

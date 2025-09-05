@@ -3,6 +3,7 @@ package "tonyfettes/cares"
 
 import(
   "tonyfettes/c"
+  "tonyfettes/socket"
 )
 
 // Values
@@ -23,10 +24,6 @@ const AI_NUMERICSERV : Int = 8
 const AI_PASSIVE : Int = 4
 
 const AI_V4MAPPED : Int = 16
-
-const INET6_ADDRSTRLEN : Int = 46
-
-const INET_ADDRSTRLEN : Int = 16
 
 const LIB_INIT_ALL : Int = 1
 
@@ -84,50 +81,44 @@ const OPT_UDP_PORT : Int = 16
 
 fn library_cleanup() -> Unit
 
-fn library_init(Int) -> Unit raise E
+fn library_init(Int) -> Unit raise Errno
 
-fn queue_wait_empty(Channel, Int) -> Unit raise E
+fn queue_wait_empty(Channel, Int) -> Unit raise Errno
 
 fn threadsafety() -> Bool
 
 // Errors
-pub suberror E {
-  NODATA
-  FORMERR
-  SERVFAIL
-  NOTFOUND
-  NOTIMP
-  REFUSED
-  BADQUERY
-  BADNAME
-  BADFAMILY
-  BADRESP
-  CONNREFUSED
-  TIMEOUT
+pub suberror Errno {
+  ENODATA
+  EFORMERR
+  ESERVFAIL
+  ENOTFOUND
+  ENOTIMP
+  EREFUSED
+  EBADQUERY
+  EBADNAME
+  EBADFAMILY
+  EBADRESP
+  ECONNREFUSED
+  ETIMEOUT
   EOF
-  FILE
-  NOMEM
-  DESTRUCTION
-  BADSTR
-  BADFLAGS
-  NONAME
-  BADHINTS
-  NOTINITIALIZED
-  LOADIPHLPAPI
-  ADDRGETNETWORKPARAMS
-  CANCELLED
-  SERVICE
-  NOSERVER
-  Unknown(Int)
+  EFILE
+  ENOMEM
+  EDESTRUCTION
+  EBADSTR
+  EBADFLAGS
+  ENONAME
+  EBADHINTS
+  ENOTINITIALIZED
+  ELOADIPHLPAPI
+  EADDRGETNETWORKPARAMS
+  ECANCELLED
+  ESERVICE
+  ENOSERVER
+  UNKNOWN(Int)
 }
 
 // Types and methods
-pub(all) enum AF {
-  UNSPEC
-  INET
-  INET6
-}
-
 type AddrInfo
 fn AddrInfo::cnames(Self) -> AddrInfoCname
 fn AddrInfo::free(Self) -> Unit
@@ -144,24 +135,23 @@ fn AddrInfoCname::null() -> Self
 fn AddrInfoCname::ttl(Self) -> Int
 
 type AddrInfoHints
-fn AddrInfoHints::new(flags? : Int, family? : AF, socktype? : Int, protocol? : Int) -> Self
+fn AddrInfoHints::new(flags? : Int, family? : Int, socktype? : Int, protocol? : Int) -> Self
 
 type AddrInfoNode
-fn AddrInfoNode::addr(Self) -> Sockaddr
-fn AddrInfoNode::addrlen(Self) -> Int
-fn AddrInfoNode::family(Self) -> AF
+fn AddrInfoNode::addr(Self) -> @socket.Sockaddr
+fn AddrInfoNode::family(Self) -> Int
 fn AddrInfoNode::is_null(Self) -> Bool
 fn AddrInfoNode::next(Self) -> Self
 fn AddrInfoNode::null() -> Self
 fn AddrInfoNode::protocol(Self) -> Int
-fn AddrInfoNode::socktype(Self) -> Int
+fn AddrInfoNode::socktype(Self) -> @socket.Type
 fn AddrInfoNode::ttl(Self) -> Int
 
 type Channel
 fn Channel::destroy(Self) -> Unit
 fn Channel::getaddrinfo(Self, Bytes, Bytes, AddrInfoHints, (Int, Int, AddrInfo) -> Unit) -> Unit
 fn Channel::is_null(Self) -> Bool
-fn Channel::new(Options, Int) -> Self raise E
+fn Channel::new(Options, Int) -> Self raise Errno
 fn Channel::null() -> Self
 
 pub(all) enum Evsys {
@@ -173,33 +163,8 @@ pub(all) enum Evsys {
   Select
 }
 
-pub struct In6Addr(UInt, UInt, UInt, UInt)
-
-fn In6Addr::ntop(Self, FixedArray[Byte], Int) -> Unit
-
-pub struct InAddr(UInt)
-fn InAddr::inner(Self) -> UInt
-fn InAddr::ntop(Self, FixedArray[Byte], Int) -> Unit
-
 type Options
 fn Options::new(evsys~ : Evsys) -> Self
-
-#external
-pub type Sockaddr
-fn Sockaddr::to_sockaddr_in(Self) -> SockaddrIn
-fn Sockaddr::to_sockaddr_in6(Self) -> SockaddrIn6
-
-#external
-pub type SockaddrIn
-fn SockaddrIn::addr(Self) -> InAddr
-fn SockaddrIn::port(Self) -> UInt16
-fn SockaddrIn::to_sockaddr(Self) -> Sockaddr
-
-#external
-pub type SockaddrIn6
-fn SockaddrIn6::addr(Self) -> In6Addr
-fn SockaddrIn6::port(Self) -> UInt16
-fn SockaddrIn6::to_sockaddr(Self) -> Sockaddr
 
 // Type aliases
 

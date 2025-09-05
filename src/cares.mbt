@@ -129,11 +129,11 @@ struct AddrInfoHints(FixedArray[Int])
 ///|
 pub fn AddrInfoHints::new(
   flags? : Int = 0,
-  family? : AF = UNSPEC,
+  family? : Int = 0,
   socktype? : Int = 0,
   protocol? : Int = 0,
 ) -> AddrInfoHints {
-  AddrInfoHints([flags, family.to_int(), socktype, protocol])
+  AddrInfoHints([flags, family, socktype, protocol])
 }
 
 ///|
@@ -221,24 +221,16 @@ pub extern "c" fn AddrInfoNode::is_null(node : AddrInfoNode) -> Bool = "moonbit_
 pub extern "c" fn AddrInfoNode::ttl(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_ttl"
 
 ///|
-extern "c" fn ares_addrinfo_node_family(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_family"
+pub extern "c" fn AddrInfoNode::family(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_family"
 
 ///|
-pub fn AddrInfoNode::family(node : AddrInfoNode) -> AF {
-  AF::of_int(ares_addrinfo_node_family(node))
-}
-
-///|
-pub extern "c" fn AddrInfoNode::socktype(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_socktype"
+pub extern "c" fn AddrInfoNode::socktype(node : AddrInfoNode) -> @socket.Type = "moonbit_ares_addrinfo_node_socktype"
 
 ///|
 pub extern "c" fn AddrInfoNode::protocol(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_protocol"
 
 ///|
-pub extern "c" fn AddrInfoNode::addrlen(node : AddrInfoNode) -> Int = "moonbit_ares_addrinfo_node_addrlen"
-
-///|
-pub extern "c" fn AddrInfoNode::addr(node : AddrInfoNode) -> Sockaddr = "moonbit_ares_addrinfo_node_addr"
+pub extern "c" fn AddrInfoNode::addr(node : AddrInfoNode) -> @socket.Sockaddr = "moonbit_ares_addrinfo_node_addr"
 
 ///|
 pub extern "c" fn AddrInfoNode::next(node : AddrInfoNode) -> AddrInfoNode = "moonbit_ares_addrinfo_node_next"
@@ -326,10 +318,7 @@ fn Errno::of_int(status : Int) -> Errno {
 }
 
 ///|
-pub fn Channel::new(
-  options : Options,
-  optmask : Int,
-) -> Channel raise Errno {
+pub fn Channel::new(options : Options, optmask : Int) -> Channel raise Errno {
   let channel = Ref::new(Channel::null())
   let status = ares_init_options(channel, options, optmask)
   if status == 0 {
@@ -343,19 +332,6 @@ pub fn Channel::new(
 pub extern "c" fn Channel::destroy(self : Channel) = "ares_channel_destroy"
 
 ///|
-pub(all) enum AF {
-  UNSPEC = 0
-  INET = 1
-  INET6 = 2
-}
-
-///|
-extern "c" fn AF::to_int(self : AF) -> Int = "moonbit_ares_AF_to_int"
-
-///|
-extern "c" fn AF::of_int(value : Int) -> AF = "moonbit_ares_AF_of_int"
-
-///|
 extern "c" fn ares_queue_wait_empty(channel : Channel, timeout_ms : Int) -> Int = "ares_queue_wait_empty"
 
 ///|
@@ -367,94 +343,4 @@ pub fn queue_wait_empty(
   if status != 0 {
     raise Errno::of_int(status)
   }
-}
-
-///|
-#external
-pub type Sockaddr
-
-///|
-pub fn Sockaddr::to_sockaddr_in(self : Sockaddr) -> SockaddrIn = "%identity"
-
-///|
-pub fn Sockaddr::to_sockaddr_in6(self : Sockaddr) -> SockaddrIn6 = "%identity"
-
-///|
-#external
-pub type SockaddrIn
-
-///|
-pub fn SockaddrIn::to_sockaddr(self : SockaddrIn) -> Sockaddr = "%identity"
-
-///|
-#external
-pub type SockaddrIn6
-
-///|
-pub fn SockaddrIn6::to_sockaddr(self : SockaddrIn6) -> Sockaddr = "%identity"
-
-///|
-pub struct InAddr(UInt)
-
-///|
-fn init {
-  ignore(InAddr(0) is InAddr::InAddr(0))
-}
-
-///|
-pub extern "c" fn SockaddrIn::addr(self : SockaddrIn) -> InAddr = "moonbit_ares_sockaddr_in_addr"
-
-///|
-pub extern "c" fn SockaddrIn::port(self : SockaddrIn) -> UInt16 = "moonbit_ares_sockaddr_in_port"
-
-///|
-#valtype
-pub struct In6Addr(UInt,UInt,UInt,UInt)
-
-///|
-fn init {
-  ignore(In6Addr(0, 0, 0, 0).0)
-  ignore(In6Addr(0, 0, 0, 0).1)
-  ignore(In6Addr(0, 0, 0, 0).2)
-  ignore(In6Addr(0, 0, 0, 0).3)
-}
-
-///|
-pub extern "c" fn SockaddrIn6::addr(self : SockaddrIn6) -> In6Addr = "moonbit_ares_sockaddr_in6_addr"
-
-///|
-pub extern "c" fn SockaddrIn6::port(self : SockaddrIn6) -> UInt16 = "moonbit_ares_sockaddr_in6_port"
-
-///|
-#borrow(buf)
-extern "c" fn ares_in_addr_ntop(
-  af : Int,
-  src : InAddr,
-  buf : FixedArray[Byte],
-  len : Int,
-) = "moonbit_ares_inet_ntop"
-
-///|
-pub const INET_ADDRSTRLEN = 16
-
-///|
-pub const INET6_ADDRSTRLEN = 46
-
-///|
-pub fn InAddr::ntop(src : InAddr, buf : FixedArray[Byte], len : Int) -> Unit {
-  ares_in_addr_ntop(AF::INET.to_int(), src, buf, len)
-}
-
-///|
-#borrow(src, buf)
-extern "c" fn ares_in6_addr_ntop(
-  af : Int,
-  src : In6Addr,
-  buf : FixedArray[Byte],
-  len : Int,
-) = "moonbit_ares_inet6_ntop"
-
-///|
-pub fn In6Addr::ntop(src : In6Addr, buf : FixedArray[Byte], len : Int) -> Unit {
-  ares_in6_addr_ntop(AF::INET6.to_int(), src, buf, len)
 }
